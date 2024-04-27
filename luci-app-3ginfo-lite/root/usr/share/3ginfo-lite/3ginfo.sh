@@ -150,6 +150,7 @@ band5g() {
 
 getdevicevendorproduct() {
 	devname="$(basename $1)"
+	echo "dev_name:$devname"
 	case "$devname" in
 		'wwan'*'at'*)
 			devpath="$(readlink -f /sys/class/wwan/$devname/device)"
