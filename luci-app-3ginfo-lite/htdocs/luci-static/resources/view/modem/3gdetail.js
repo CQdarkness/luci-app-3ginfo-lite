@@ -210,6 +210,51 @@ function active_select() {
 	});
 }
 
+function formatDuration(sec) {
+    if (sec === '-') { return '-'; }
+    if (sec === '') { return '-'; }
+    var d = Math.floor(sec / 86400),
+        h = Math.floor(sec / 3600) % 24,
+        m = Math.floor(sec / 60) % 60,
+        s = sec % 60;
+    var time = d > 0 ? d + 'd ' : '';
+    if (time !== '') { time += h + 'h '; } else { time = h > 0 ? h + 'h ' : ''; }
+    if (time !== '') { time += m + 'm '; } else { time = m > 0 ? m + 'm ' : ''; }
+    time += s + 's';
+    return time;
+}
+
+function formatDateTime(s) {
+	if (s.length == 14) {
+		return s.replace(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, "$1-$2-$3 $4:$5:$6");
+	} else if (s.length == 12) {
+		return s.replace(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/, "$1-$2-$3 $4:$5");
+	} else if (s.length == 8) {
+		return s.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
+	} else if (s.length == 6) {
+		return s.replace(/(\d{4})(\d{2})/, "$1-$2");
+	}
+	return s;
+}
+
+function checkOperatorName(t) {
+    var w = t.split(" ");
+    var f = {};
+
+    for (var i = 0; i < w.length; i++) {
+        var wo = w[i].toLowerCase(); 
+        if (!f.hasOwnProperty(wo)) {
+            f[wo] = i;
+        }
+    }
+
+    var u = Object.keys(f).map(function(wo) {
+        return w[f[wo]];
+    });
+
+    var r = u.join(" ");
+    return r;
+}
 
 return view.extend({
 
@@ -335,7 +380,7 @@ simDialog: baseclass.extend({
 
 		render: function(content) {
 
-			let json = JSON.parse(content);
+			var json = JSON.parse(content);
 
 			if (json) {
 				if (!json.imei.length > 2) {
@@ -530,11 +575,11 @@ simDialog: baseclass.extend({
 
 					if (document.getElementById('connst')) {
 						var view = document.getElementById("connst");
-						if (json.connt == '' || json.connt == '-') {
+						if (json.conn_time == '' || json.conn_time == '-') {
 						view.innerHTML = String.format('<img style="width: 16px; height: 16px; vertical-align: middle;" src="%s"/>' + ' ' +_('Waiting for connection data...'), wicon, p);
 						}
 						else {
-						view.innerHTML = String.format('<img style="width: 16px; height: 16px; vertical-align: middle;" src="%s"/>' + ' ' + json.connt + ' ' + ' | \u25bc\u202f' + json.connrx + ' \u25b2\u202f' + json.conntx, ticon, t);
+						view.innerHTML = String.format('<img style="width: 16px; height: 16px; vertical-align: middle;" src="%s"/>' + ' ' + formatDuration(json.conn_time_sec) + ' ' + ' | \u25bc\u202f' + json.rx + ' \u25b2\u202f' + json.tx, ticon, t);
 						}
 					}
 
@@ -544,7 +589,7 @@ simDialog: baseclass.extend({
 						view.textContent = '-';
 						}
 						else {
-						view.textContent = json.operator_name;
+						view.textContent = checkOperatorName(json.operator_name);
 						}
 					}
 
@@ -571,7 +616,7 @@ simDialog: baseclass.extend({
 						if (json.registration == '0') { 
 							view.textContent = _('Not registered');
 						}
-						if (json.registration == '1' || json.registration == '6') { 
+						if (json.registration == '1') { 
 							view.textContent = _('Registered');
 						}
 						if (json.registration == '2') { 
@@ -646,7 +691,7 @@ simDialog: baseclass.extend({
 						var view = document.getElementById("temp");
 						var viewn = document.getElementById("tempn");
 						var t = json.mtemp;
-						if (!t.length > 1) { 
+						if (!t.length > 1 && t.includes(' ') || t == '' || t == '-') { 
 						viewn.style.display = 'none';
 						}
 						else {
@@ -932,7 +977,7 @@ simDialog: baseclass.extend({
 							'class': 'ifacebadge',
 							'title': null,
 							'id': 'simv',
-							'style': 'visibility: hidden; max-width:3em; display: inline-block;',
+							'style': 'visibility: hidden; margin:0 auto; padding: 4px;',
 							'click': ui.createHandlerFn(this, function() {
 									return upSIMDialog.show();
 							}),
@@ -942,7 +987,7 @@ simDialog: baseclass.extend({
 							E('div', { 'class': 'cbi-tooltip-container' }, [
 							E('img', {
 								'src': L.resource('icons/sim1m.png'),
-								'style': 'width:24px; height:auto; padding: 0px',
+								'style': 'width:24px; height:auto; padding: 1%; margin:0 auto;',
 								'title': _(''),
 								'class': 'middle',
 							}),
