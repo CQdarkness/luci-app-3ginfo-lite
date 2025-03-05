@@ -22,7 +22,7 @@ convert_bw() {
     *) echo "";;
   esac
 }
-
+echo "start get FM350-MODEM-INFO"
 O=$(sms_tool -d $DEVICE at "AT+GTCCINFO?;+GTCAINFO?")
 
 case "$MODE_NUM" in
@@ -308,3 +308,4 @@ case $NETDRV in
    "rndis_host")
      PROTO="ncm";;
 esac
+echo "end get FM350-MODEM-INFO"
