@@ -17,7 +17,7 @@ exit 0
 
 if [[ "$DEVICE" == *"xiaomi,mi-router-3g"* ]]; then
 
-		uci set 3ginfo.@3ginfo[0].device="/dev/ttyUSB0" 2>&1 &
+		uci set 3ginfo.@3ginfo[0].device="/dev/ttyUSB3" 2>&1 &
 		uci commit 3ginfo 2>&1 &
 
 fi
